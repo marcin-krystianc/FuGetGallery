@@ -169,117 +169,117 @@
 
 <header>
 <h1>
-    <a href="/packages/@Uri.EscapeDataString(package.Id)">
-        <img src="@package.SafeIconUrl" class="package-icon" width="64" height="64" onError="this.onerror=null;this.src='/images/no-icon.png';" />
-    </a>
-    <a href="/packages/@Uri.EscapeDataString(package.Id)">@package.Id</a>
-    <small>by @authors</small>
+        <a href="/packages/@Uri.EscapeDataString(package.Id)">
+            <img src="@package.SafeIconUrl" class="package-icon" width="64" height="64" onError="this.onerror=null;this.src='/images/no-icon.png';" />
+        </a>
+        <a href="/packages/@Uri.EscapeDataString(package.Id)">@package.Id</a>
+        <small>by @authors</small>
     <a href="/packages/@Uri.EscapeDataString(package.Id)/badges"><img src="/packages/@Uri.EscapeDataString(package.Id)/badge.svg?v=@Uri.EscapeDataString(versionSpec.VersionString)"/></a>
 </h1>
 <nav>
-    <div class="btn-group" style="display: inline-block">
-        <button type="button" class="btn btn-default">@package.Version <small>(@ShortDate(package.Version?.PublishTime))</small></button>
-        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            <span class="caret"></span>
-            <span class="sr-only">Toggle Dropdown</span>
-        </button>
-        <ul class="dropdown-menu">
+        <div class="btn-group" style="display: inline-block">
+            <button type="button" class="btn btn-default">@package.Version <small>(@ShortDate(package.Version?.PublishTime))</small></button>
+            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <span class="caret"></span>
+                <span class="sr-only">Toggle Dropdown</span>
+            </button>
+            <ul class="dropdown-menu">
         @foreach (var v in versions.Versions.OrderByDescending (x => x).Where (x => x.IsPublished))
-        {
-            <li><a href="@GetUrl(oversion:v.VersionString)">@v <small>(@ShortDate(v.PublishTime))</small></a></li>
-        }
-        </ul>
-    </div>
-    <div class="btn-group" style="display: inline-block">
-        <button type="button" class="btn btn-default">
-            API Diff
+                {
+                    <li><a href="@GetUrl(oversion:v.VersionString)">@v <small>(@ShortDate(v.PublishTime))</small></a></li>
+                }
+            </ul>
+        </div>
+        <div class="btn-group" style="display: inline-block">
+            <button type="button" class="btn btn-default">
+                API Diff
             @if (diff != null) {
-                <span>with @diff.OtherPackage.Version</span>
-            }
-        </button>
-        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            <span class="caret"></span>
-            <span class="sr-only">Toggle Dropdown</span>
-        </button>
-        <ul class="dropdown-menu">
+                    <span>with @diff.OtherPackage.Version</span>
+                }
+            </button>
+            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <span class="caret"></span>
+                <span class="sr-only">Toggle Dropdown</span>
+            </button>
+            <ul class="dropdown-menu">
         @foreach (var v in versions.Versions.Where (x => x.IsPublished && x.CompareTo (versionSpec) < 0).OrderByDescending (x => x))
-        {
-            <li><a href="@GetUrl(oversion:package.Version.VersionString, odir:"lib", oassemblyName:"diff", onamespace:v, otypeName:"")">@v <small>(@ShortDate(v.PublishTime))</small></a></li>
-        }
-        </ul>
-    </div>
-    <a href="@package.DownloadUrl" type="button" class="btn btn-default" style="color:#777">
-        <span class="glyphicon glyphicon-download" aria-hidden="true"></span>&nbsp;@nupkgName
-    </a>
-    <a href="https://www.nuget.org/packages/@Uri.EscapeDataString(package.Id)/@Uri.EscapeDataString(package.Version.VersionString)" type="button" class="btn btn-default" style="color: #777">
-        <span class="glyphicon glyphicon-link" aria-hidden="true"></span>&nbsp;nuget.org
-    </a>
+                {
+                    <li><a href="@GetUrl(oversion:package.Version.VersionString, odir:"lib", oassemblyName:"diff", onamespace:v, otypeName:"")">@v <small>(@ShortDate(v.PublishTime))</small></a></li>
+                }
+            </ul>
+        </div>
+        <a href="@package.DownloadUrl" type="button" class="btn btn-default" style="color:#777">
+            <span class="glyphicon glyphicon-download" aria-hidden="true"></span>&nbsp;@nupkgName
+        </a>
+        <a href="https://www.nuget.org/packages/@Uri.EscapeDataString(package.Id)/@Uri.EscapeDataString(package.Version.VersionString)" type="button" class="btn btn-default" style="color: #777">
+            <span class="glyphicon glyphicon-link" aria-hidden="true"></span>&nbsp;nuget.org
+        </a>
     @if (!string.IsNullOrEmpty(package.ProjectUrl)) {
-        <a href="@package.ProjectUrl" type="button" class="btn btn-default" style="color:#777">
-            <span class="glyphicon glyphicon-link" aria-hidden="true"></span>&nbsp;@package.ProjectUrlTitle
-        </a>
-    }
+            <a href="@package.ProjectUrl" type="button" class="btn btn-default" style="color:#777">
+                <span class="glyphicon glyphicon-link" aria-hidden="true"></span>&nbsp;@package.ProjectUrlTitle
+            </a>
+        }
     @if (!string.IsNullOrEmpty(package.RepositoryFullUrl) && package.RepositoryFullUrl != package.ProjectUrl) {
-        <a href="@package.RepositoryFullUrl" type="button" class="btn btn-default" style="color: #777">
-            <span class="glyphicon glyphicon-folder-open" aria-hidden="true"></span>&nbsp;&nbsp;@package.RepositoryUrlTitle
-        </a>
-    }
+            <a href="@package.RepositoryFullUrl" type="button" class="btn btn-default" style="color: #777">
+                <span class="glyphicon glyphicon-folder-open" aria-hidden="true"></span>&nbsp;&nbsp;@package.RepositoryUrlTitle
+            </a>
+        }
     @if (!string.IsNullOrEmpty(package.LicenseUrl)) {
-        <a href="@package.LicenseUrl" type="button" class="btn btn-default" style="color: #777">
-            <span class="glyphicon glyphicon-piggy-bank" aria-hidden="true"></span>&nbsp;@(package.MatchedLicense?.Name ?? "License")
-        </a>
-    }
+            <a href="@package.LicenseUrl" type="button" class="btn btn-default" style="color: #777">
+                <span class="glyphicon glyphicon-piggy-bank" aria-hidden="true"></span>&nbsp;@(package.MatchedLicense?.Name ?? "License")
+            </a>
+        }
 </nav>
 
 <div class="code add-package-code">&lt;<span class="c-pr">PackageReference</span> <span class="c-tr">Include</span>=<span class="c-st" style="font-weight:bold">"@package.Id"</span> <span class="c-tr">Version</span>=<span class="c-st" style="font-weight:bold">"@package.Version"</span> /&gt;</div>
 
 @if (package.Error != null) {
-    <div style="margin-top:2em">
-        <h2>Error reading package</h2>
-        <pre>@package.Error</pre>
-    </div>
+        <div style="margin-top:2em">
+            <h2>Error reading package</h2>
+            <pre>@package.Error</pre>
+        </div>
 }
 
 @if (package.TargetFrameworks.Count > 0) {
-    <nav style="margin-top:0em;line-height:2.75em;">
-        <h4 style="margin-top:0.5em;color:#777;display:inline-block;margin-right:0.5em;padding:0;">Frameworks</h4>
+        <nav style="margin-top:0em;line-height:2.75em;">
+            <h4 style="margin-top:0.5em;color:#777;display:inline-block;margin-right:0.5em;padding:0;">Frameworks</h4>
     @foreach (var tf in package.TargetFrameworks) {
-        var active = tf.Moniker == framework.Moniker ? "active" : "";
-        var color = tf.Moniker.StartsWith("netstandard") ? "success" : 
-                    (tf.Moniker.StartsWith("net") ? "info" :
-                    (tf.Moniker.StartsWith("portable") ? "warning" : "primary"));
-        var bold = active == "active" ? "bold" : "normal";
-        var tcolor = active == "active" ? "color:#fff" : "color:rgba(255,255,255,0.75)";
-        <a class="btn btn-@color btn-sm @active" style="font-weight:@bold;@tcolor" role="button"
-           href="@GetUrl(otargetFramework:tf.Moniker)">@tf.Moniker</a>
-    }
-    </nav>
+                var active = tf.Moniker == framework.Moniker ? "active" : "";
+                var color = tf.Moniker.StartsWith("netstandard") ? "success" :
+                            (tf.Moniker.StartsWith("net") ? "info" :
+                            (tf.Moniker.StartsWith("portable") ? "warning" : "primary"));
+                var bold = active == "active" ? "bold" : "normal";
+                var tcolor = active == "active" ? "color:#fff" : "color:rgba(255,255,255,0.75)";
+                <a class="btn btn-@color btn-sm @active" style="font-weight:@bold;@tcolor" role="button"
+                   href="@GetUrl(otargetFramework:tf.Moniker)">@tf.Moniker</a>
+            }
+        </nav>
 }
 
 @if (framework != null && framework.Dependencies.Count > 0) {
-    <nav style="margin-top:0em;line-height:2.75em;">
-        <h4 style="margin-top:0.5em;color:#777;display:inline-block;margin-right:0.5em;padding:0;">Dependencies</h4>
+        <nav style="margin-top:0em;line-height:2.75em;">
+            <h4 style="margin-top:0.5em;color:#777;display:inline-block;margin-right:0.5em;padding:0;">Dependencies</h4>
     @foreach (var d in framework.Dependencies.OrderBy(x => x.PackageId)) {
-        <a class="btn btn-default btn-sm" style="color:#777"
-            href="/packages/@Uri.EscapeDataString(d.PackageId)/@Uri.EscapeDataString(d.VersionSpec)">
+                <a class="btn btn-default btn-sm" style="color:#777"
+                   href="/packages/@Uri.EscapeDataString(d.PackageId)/@Uri.EscapeDataString(d.VersionSpec)">
             <span class="glyphicon glyphicon-@GetIcon(d)" aria-hidden="true"></span>&nbsp;@d.PackageId&nbsp;@d.VersionSpec</a>
-    }
-    </nav>
+            }
+        </nav>
 }
 
 @if (dependents.Count > 0) {
-    <nav style="margin-top:0em;line-height:2.75em;">
-        <h4 style="margin-top:0.5em;color:#777;display:inline-block;margin-right:0.5em;padding:0;">Dependents</h4>
+        <nav style="margin-top:0em;line-height:2.75em;">
+            <h4 style="margin-top:0.5em;color:#777;display:inline-block;margin-right:0.5em;padding:0;">Dependents</h4>
     @foreach (var d in (from d in dependents let r = rand.Next() orderby r select d).Take(maxDisplayDependents).OrderBy(x => x)) {
-        <a class="btn btn-default btn-sm" style="color:#777"
-            href="/packages/@Uri.EscapeDataString(d)">
+                <a class="btn btn-default btn-sm" style="color:#777"
+                   href="/packages/@Uri.EscapeDataString(d)">
             <span class="glyphicon glyphicon-@packageIcon" aria-hidden="true"></span>&nbsp;@d</a>
-    }
+            }
     @if (dependents.Count > maxDisplayDependents) {
-        <a class="btn btn-default btn-sm" style="color:#777"
+                <a class="btn btn-default btn-sm" style="color:#777"
             href="/packages/@Uri.EscapeDataString(package.Id)/dependents">@(dependents.Count - maxDisplayDependents) more...</a>
-    }
-    </nav>
+            }
+        </nav>
 }
 
 <hr style="margin-top:2em;" />
@@ -299,53 +299,29 @@
         @if (package.AllowedToDecompile)
         {
             <li role="presentation" class="@(code?"active":"")">
-        <a href="@GetUrl(oversion:package.Version.VersionString, odir:"lib", oassemblyName:"diff", onamespace:diff.OtherPackage.Version, otypeName:"", ocode:"true")" aria-controls="code" role="tab">Code Diff</a>
+                <a href="@GetUrl(oversion:package.Version.VersionString, odir:"lib", oassemblyName:"diff", onamespace:diff.OtherPackage.Version, otypeName:"", ocode:"true")" aria-controls="code" role="tab">Code Diff</a>
             </li>
         }
     </ul>
-    if (docs != null)
+    if (!code)
     {
-        if (code)
+        @foreach (var ni in diff.Namespaces)
         {
-            @foreach (var ni in diff.Namespaces)
-            {
-        <h3 style="margin-bottom:0em;">@ni.Namespace</h3>
-        <ul class="inline-code" style="margin-top:0em;padding:10px 20px;">
-                    @foreach (var ti in ni.Types)
-                    {
-            <li class="diff-@ti.Action">
-                            @Html.Raw(ti.Type.GetPrototypeHtml(framework: ti.Framework, linkToCode: false))
-                <ul>
-                                @foreach (var mi in ti.Members)
-                                {
-                                    <li class="diff-@mi.Action">@Html.Raw(mi.Member.GetPrototypeHtml(framework: ti.Framework, linkToCode: false))</li>
+            <h3 style="margin-bottom:0em;">@ni.Namespace</h3>
+            <ul class="inline-code" style="margin-top:0em;padding:10px 20px;">
+                @foreach (var ti in ni.Types)
+                {
+                    <li class="diff-@ti.Action">
+                        @Html.Raw(ti.Type.GetPrototypeHtml(framework: ti.Framework, linkToCode: false))
+                        <ul>
+                            @foreach (var mi in ti.Members)
+                            {
+                                <li class="diff-@mi.Action">@Html.Raw(mi.Member.GetPrototypeHtml(framework: ti.Framework, linkToCode: false))</li>
+                            }
+                        </ul>
+                    </li>
                 }
-                </ul>
-            </li>
-        }
-        </ul>
-    }
-        }
-        else
-        {
-            @foreach (var ni in diff.Namespaces)
-            {
-                <h3 style="margin-bottom:0em;">@ni.Namespace</h3>
-                <ul class="inline-code" style="margin-top:0em;padding:10px 20px;">
-                    @foreach (var ti in ni.Types)
-                    {
-                        <li class="diff-@ti.Action">
-                            @Html.Raw(ti.Type.GetPrototypeHtml(framework: ti.Framework, linkToCode: false))
-                            <ul>
-                                @foreach (var mi in ti.Members)
-                                {
-                                    <li class="diff-@mi.Action">@Html.Raw(mi.Member.GetPrototypeHtml(framework: ti.Framework, linkToCode: false))</li>
-                                }
-                            </ul>
-                        </li>
-                    }
-                </ul>
-            }
+            </ul>
         }
     }
 }
@@ -354,148 +330,148 @@ else {
 <div id="api" class="row" style="margin-bottom:4em;">
 <div class="col-xs-12 col-sm-3 sidenav">
 @if (hasApi) {
-    <h3 style="color:#777;margin-top:0em;margin-bottom:0em">.NET API <small style="color:#777;">@framework.SizeInBytes.ToString("#,0") bytes</small></h3>
-    
+                <h3 style="color:#777;margin-top:0em;margin-bottom:0em">.NET API <small style="color:#777;">@framework.SizeInBytes.ToString("#,0") bytes</small></h3>
+
 }
 else {
-    <h3 style="color:#777;margin-top:0em;margin-bottom:0em">Package Files</h3>
+                <h3 style="color:#777;margin-top:0em;margin-bottom:0em">Package Files</h3>
     <small style="color:#777;">@((package.Content.Sum(x=>x.SizeInBytes)+package.Tools.Sum(x=>x.SizeInBytes)).ToString("#,0")) bytes</small>
 }
 
 <form class="form-inline" style="margin-top: 0.5em;">
-    <input id="asearch" type="search" class="form-control" placeholder="Search"
-        autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
-        style="margin-bottom:1em;" />
+                <input id="asearch" type="search" class="form-control" placeholder="Search"
+                       autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+                       style="margin-bottom:1em;" />
 </form>
 
 <nav id="anav">
 
 @if (framework != null && framework.Assemblies.Count > 0) {
-    <h4>Assemblies</h4>
-    <ul class="pkglist">
+                    <h4>Assemblies</h4>
+                    <ul class="pkglist">
     @foreach (var a in framework.Assemblies.OrderBy(x => x.FileName)) {
-        var active = !isBuildAsm && a.FileName == asm?.FileName;
-        var cls = (active ? "active " : "") + "public-api";
-        <li>
-            <a class="@cls"
-               href="/packages/@Uri.EscapeDataString(package.Id)/@Uri.EscapeDataString(package.Version.VersionString)/lib/@Uri.EscapeDataString(framework.Moniker)/@Uri.EscapeDataString(a.FileName)">
+                            var active = !isBuildAsm && a.FileName == asm?.FileName;
+                            var cls = (active ? "active " : "") + "public-api";
+                            <li>
+                                <a class="@cls"
+                                   href="/packages/@Uri.EscapeDataString(package.Id)/@Uri.EscapeDataString(package.Version.VersionString)/lib/@Uri.EscapeDataString(framework.Moniker)/@Uri.EscapeDataString(a.FileName)">
                 <span class="glyphicon glyphicon-@GetIcon(a)" aria-hidden="true"></span>&nbsp;@a.FileName</a>
-        </li>
-    }
-    </ul>
+                            </li>
+                        }
+                    </ul>
 }
 @if (framework != null && framework.BuildAssemblies.Count > 0) {
-    <h4>Build Assemblies</h4>
-    <ul class="pkglist">
+                    <h4>Build Assemblies</h4>
+                    <ul class="pkglist">
     @foreach (var a in framework.BuildAssemblies.OrderBy(x => x.FileName)) {
-        var active = isBuildAsm && a.FileName == asm?.FileName;
-        var cls = (active ? "active " : "") + "public-api";
-        <li>
-            <a class="@cls"
-               href="/packages/@Uri.EscapeDataString(package.Id)/@Uri.EscapeDataString(package.Version.VersionString)/build/@Uri.EscapeDataString(framework.Moniker)/@Uri.EscapeDataString(a.FileName)">
+                            var active = isBuildAsm && a.FileName == asm?.FileName;
+                            var cls = (active ? "active " : "") + "public-api";
+                            <li>
+                                <a class="@cls"
+                                   href="/packages/@Uri.EscapeDataString(package.Id)/@Uri.EscapeDataString(package.Version.VersionString)/build/@Uri.EscapeDataString(framework.Moniker)/@Uri.EscapeDataString(a.FileName)">
                 <span class="glyphicon glyphicon-@GetIcon(a)" aria-hidden="true"></span>&nbsp;@a.FileName</a>
-        </li>
-    }
-    </ul>
+                            </li>
+                        }
+                    </ul>
 }
 @if (asmDef != null && namespaces != null && namespaces.Count > 0) {
-    <h4>Namespaces</h4>
-    <ul class="pkglist">
+                    <h4>Namespaces</h4>
+                    <ul class="pkglist">
     @foreach (var n in namespaces) {
-        var isPublic = n.Any(x => x.IsPublic);
-        var active = n.Key == ns?.Key;
-        var cls = (active ? "active " : "") + (isPublic ? "public-api" : "private-api");
+                            var isPublic = n.Any(x => x.IsPublic);
+                            var active = n.Key == ns?.Key;
+                            var cls = (active ? "active " : "") + (isPublic ? "public-api" : "private-api");
         if (isPublic || package.AllowedToDecompile) {
-        <li>
-            <a class="@cls"
-               href="/packages/@Uri.EscapeDataString(package.Id)/@Uri.EscapeDataString(package.Version.VersionString)/@Uri.EscapeDataString(dir)/@Uri.EscapeDataString(framework.Moniker)/@Uri.EscapeDataString(asm.FileName)/@Uri.EscapeDataString(n.Key)">
+                                <li>
+                                    <a class="@cls"
+                                       href="/packages/@Uri.EscapeDataString(package.Id)/@Uri.EscapeDataString(package.Version.VersionString)/@Uri.EscapeDataString(dir)/@Uri.EscapeDataString(framework.Moniker)/@Uri.EscapeDataString(asm.FileName)/@Uri.EscapeDataString(n.Key)">
                 <span class="glyphicon glyphicon-@GetIcon(n)" aria-hidden="true"></span>&nbsp;@n.Key</a>
-        </li>
-        }
-    }
-    </ul>
+                                </li>
+                            }
+                        }
+                    </ul>
 }
 @if (ns != null) {
-    <h4 id="types">Types</h4>
-    <ul class="long-item-list">
+                    <h4 id="types">Types</h4>
+                    <ul class="long-item-list">
     @foreach (var t in ns.OrderBy(x => x.Name)) {
-        var active = t.Name == typ?.Name;
-        var cls = (active ? "active " : "") + (t.IsPublic ? "public-api" : "private-api");
+                            var active = t.Name == typ?.Name;
+                            var cls = (active ? "active " : "") + (t.IsPublic ? "public-api" : "private-api");
         if (t.IsPublic || package.AllowedToDecompile) {
-        <li>
-            <a class="@cls"
-                href="@GetUrl(otypeName:t.Name)">
+                                <li>
+                                    <a class="@cls"
+                                       href="@GetUrl(otypeName:t.Name)">
                 <span class="glyphicon glyphicon-@GetIcon(t)" aria-hidden="true"></span>&nbsp;@t.GetFriendlyName()</a>
-        </li>
-        }
-    }
-    </ul>
+                                </li>
+                            }
+                        }
+                    </ul>
 }
 @if (package != null && package.Content.Count > 0) {
-    <h4>Content</h4>
-    <ul class="pkglist">
+                    <h4>Content</h4>
+                    <ul class="pkglist">
     @foreach (var a in package.Content.OrderBy(x => x.FileName)) {
-        var bold = a.FileName == content?.FileName ? "bold" : "normal";
-        var color = bold == "bold" ? "#000" : "#777";
-        <li>
-            <a style="font-weight:@bold;color:@color;"
-                href="/packages/@Uri.EscapeDataString(package.Id)/@Uri.EscapeDataString(package.Version.VersionString)/content/@a.ArchiveEntry.FullName.Substring(8)">
+                            var bold = a.FileName == content?.FileName ? "bold" : "normal";
+                            var color = bold == "bold" ? "#000" : "#777";
+                            <li>
+                                <a style="font-weight:@bold;color:@color;"
+                                   href="/packages/@Uri.EscapeDataString(package.Id)/@Uri.EscapeDataString(package.Version.VersionString)/content/@a.ArchiveEntry.FullName.Substring(8)">
                 <span class="glyphicon glyphicon-@GetIcon(a)" aria-hidden="true"></span>&nbsp;@a.ArchiveEntry.FullName.Substring(8)</a>
-        </li>
-    }
-    </ul>
+                            </li>
+                        }
+                    </ul>
 }
 @if (package != null && package.Tools.Count > 0) {
-    <h4>Tools</h4>
-    <ul class="pkglist">
+                    <h4>Tools</h4>
+                    <ul class="pkglist">
     @foreach (var a in package.Tools.OrderBy(x => x.FileName)) {
-        var bold = a.FileName == content?.FileName ? "bold" : "normal";
-        var color = bold == "bold" ? "#000" : "#777";
-        <li>
-            <a style="font-weight:@bold;color:@color;"
-                href="/packages/@Uri.EscapeDataString(package.Id)/@Uri.EscapeDataString(package.Version.VersionString)/tools/@a.ArchiveEntry.FullName.Substring(6)">
+                            var bold = a.FileName == content?.FileName ? "bold" : "normal";
+                            var color = bold == "bold" ? "#000" : "#777";
+                            <li>
+                                <a style="font-weight:@bold;color:@color;"
+                                   href="/packages/@Uri.EscapeDataString(package.Id)/@Uri.EscapeDataString(package.Version.VersionString)/tools/@a.ArchiveEntry.FullName.Substring(6)">
                 <span class="glyphicon glyphicon-@GetIcon(a)" aria-hidden="true"></span>&nbsp;@a.ArchiveEntry.FullName.Substring(6)</a>
-        </li>
-    }
-    </ul>
+                            </li>
+                        }
+                    </ul>
 }
 </nav>
 </div>
 <div class="col-xs-12 col-sm-9" id="code">
 <article>
 @if (showKlass == "type") {
-    <h1 id="type" style="margin-top:0"><span class="glyphicon glyphicon-@GetIcon(typ)" aria-hidden="true"></span>&nbsp;@typ.GetFriendlyName()</h1>
-    <div class="member-code" style="font-size:120%">
+                    <h1 id="type" style="margin-top:0"><span class="glyphicon glyphicon-@GetIcon(typ)" aria-hidden="true"></span>&nbsp;@typ.GetFriendlyName()</h1>
+                    <div class="member-code" style="font-size:120%">
         @Html.Raw(typ.GetPrototypeHtml(framework:framework, linkToCode:false))
-    </div>
+                </div>
     <div class="description-section">@if (docs != null) {@Html.Raw(docs.SummaryHtml)} else {@description}</div>
-    <ul class="nav nav-tabs" role="tablist">
-        <li role="presentation" class="@(!code?"active":"")"><a href="@GetUrl(ocode:"false")" aria-controls="documentation" role="tab">Documentation</a></li>
+                <ul class="nav nav-tabs" role="tablist">
+                    <li role="presentation" class="@(!code?"active":"")"><a href="@GetUrl(ocode:"false")" aria-controls="documentation" role="tab">Documentation</a></li>
         @if (package.AllowedToDecompile) {
-        <li role="presentation" class="@(code?"active":"")"><a href="@GetUrl(ocode:"true")" aria-controls="code" role="tab">Code</a></li>
-        }
-    </ul>
+                        <li role="presentation" class="@(code?"active":"")"><a href="@GetUrl(ocode:"true")" aria-controls="code" role="tab">Code</a></li>
+                    }
+                </ul>
     if (docs != null) {
     if (code) {
-        @Html.Raw(await docs.GetTypeCodeAsync())
-    }
+                        @Html.Raw(await docs.GetTypeCodeAsync())
+                    }
     else {
-        @Html.Raw(docs.DocumentationHtml)
-    }
-    }
+                        @Html.Raw(docs.DocumentationHtml)
+                    }
+                }
 }
 else if (showKlass == "namespace") {
-    <h1 id="namespace" style="margin-top:0"><span class="glyphicon glyphicon-@GetIcon(ns)" aria-hidden="true"></span>&nbsp;@ns.Key</h1>
-    <p class="description-section">@description</p>
+                <h1 id="namespace" style="margin-top:0"><span class="glyphicon glyphicon-@GetIcon(ns)" aria-hidden="true"></span>&nbsp;@ns.Key</h1>
+                <p class="description-section">@description</p>
 }
 else if (showKlass == "assembly") {
-    <h1 id="assembly" style="margin-top:0"><span class="glyphicon glyphicon-@GetIcon(asm)" aria-hidden="true"></span>&nbsp;@asm.FileName <small>@asmDef.Name.Version</small></h1>
-    <p class="description-section">@description</p>
+                <h1 id="assembly" style="margin-top:0"><span class="glyphicon glyphicon-@GetIcon(asm)" aria-hidden="true"></span>&nbsp;@asm.FileName <small>@asmDef.Name.Version</small></h1>
+                <p class="description-section">@description</p>
 }
 else {
-    <h1 id="package" style="margin-top:0"><span class="glyphicon glyphicon-@GetIcon(package)" aria-hidden="true"></span>&nbsp;@package.Id <small>@package.Version</small></h1>
-    <p class="description-section">@description</p>
-    <pre><code>@package.NuspecXml</code></pre>
+                <h1 id="package" style="margin-top:0"><span class="glyphicon glyphicon-@GetIcon(package)" aria-hidden="true"></span>&nbsp;@package.Id <small>@package.Version</small></h1>
+                <p class="description-section">@description</p>
+                <pre><code>@package.NuspecXml</code></pre>
 }
 </article>
 </div>
