@@ -61,7 +61,7 @@ namespace FuGetGallery
         {
             public TypeDefinition Type;
             public PackageTargetFramework Framework;
-            public List<DiffPiece> Lines;
+            public IReadOnlyList<IReadOnlyCollection<DiffPiece>> DiffChunks;
         }
 
         public CodeDiff (PackageData package, PackageTargetFramework framework, PackageData otherPackage, PackageTargetFramework otherFramework)
@@ -154,8 +154,13 @@ namespace FuGetGallery
                             break;
                     }
 
-                    ti.Lines = inlineDiffBuilder.BuildDiffModel (oldImplementation, newImplementation, true).Lines;
-                    types.Add (ti);                 
+                    var difChunks = MakeDiffChunks (inlineDiffBuilder.BuildDiffModel (oldImplementation, newImplementation, true).Lines, 3)
+                        .ToList ();
+
+                    if (difChunks.Any()) {
+                        ti.DiffChunks = difChunks;
+                        types.Add (ti);
+                    }              
                 }
             }
             foreach (var ns in types.GroupBy (x => x.Type.Namespace)) {
@@ -165,6 +170,50 @@ namespace FuGetGallery
                 Namespaces.Add (ni);
             }
             Namespaces.Sort ((x, y) => string.Compare (x.Namespace, y.Namespace, StringComparison.Ordinal));
+        }
+
+        private static IEnumerable<IReadOnlyCollection<DiffPiece>> MakeDiffChunks(IEnumerable<DiffPiece> diffLines, int contextSize)
+        {
+            var queue = new Queue<DiffPiece> ();
+            var diffSeen = false;
+            var unmodifiedTail = 0;
+
+            foreach (var diffLine in diffLines) 
+            {
+                queue.Enqueue (diffLine);
+
+                if (diffLine.Type == ChangeType.Deleted || diffLine.Type == ChangeType.Inserted) {
+                    diffSeen = true;
+                    unmodifiedTail = 0;
+                }
+                else {
+                    unmodifiedTail++;
+                }
+
+                if (!diffSeen && queue.Count > contextSize)
+                {
+                    queue.Dequeue ();
+                }
+                else if (diffSeen && unmodifiedTail == contextSize * 2) {
+                    var resultSize = queue.Count - contextSize;
+                    var result = new List<DiffPiece> (resultSize);
+                    for (int i = 0; i < resultSize; i++) {
+                        result.Add (queue.Dequeue ());
+                    }
+                    yield return result;
+                    diffSeen = false;
+                    unmodifiedTail = queue.Count;
+                }
+            }
+
+            if (diffSeen) {
+                if (unmodifiedTail > contextSize) {
+                    yield return queue
+                        .SkipLast (unmodifiedTail - contextSize)
+                        .ToList ();
+                }
+                yield return queue;
+            }
         }
 
         private string DecompileType (TypeDefinition typeDefinition)

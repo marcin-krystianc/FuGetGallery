@@ -351,17 +351,14 @@
                 {
                     <li>
                         @Html.Raw(ti.Type.GetPrototypeHtml(framework: ti.Framework, linkToCode: false))
-                        <ul>
-                            <pre>
-                                <code>
-                                    @foreach (var line in ti.Lines)
-                                    {
-                                        @Html.Raw(line.GetBetterText() + Environment.NewLine)
-                                    }
-                                </code>
-                            </pre>
-</ul>
                     </li>
+                    <ul class="inline-code" style="margin-top:0em;padding:10px 20px;">
+                        @foreach (var diffChunk in ti.DiffChunks)
+                        {
+                            <li style="margin-bottom:0em;">Lines @(diffChunk.Where(x => x.Position.HasValue).FirstOrDefault()?.Position ?? 0)..@(diffChunk.Where(x => x.Position.HasValue).LastOrDefault()?.Position ?? 0) </li>
+                            <pre><code>@foreach (var line in diffChunk) {@Html.Raw(line.GetBetterText() +"\n")}</code></pre>
+                        }
+                    </ul>
                 }
             </ul>
         }
