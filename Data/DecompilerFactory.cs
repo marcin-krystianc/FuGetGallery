@@ -8,7 +8,7 @@ namespace FuGetGallery
 
         static DecompilerFactory()
         {
-            ICSharpCode.Decompiler.CSharp.OutputVisitor.FormattingOptionsFactory.CreateMono();
+            Format = ICSharpCode.Decompiler.CSharp.OutputVisitor.FormattingOptionsFactory.CreateMono();
             Format.SpaceBeforeMethodCallParentheses = false;
             Format.SpaceBeforeMethodDeclarationParentheses = false;
             Format.SpaceBeforeConstructorDeclarationParentheses = false;
