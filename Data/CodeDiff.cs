@@ -31,7 +31,7 @@ namespace FuGetGallery
 
     public class CodeDiff : DiffBase
     {
-        readonly InlineDiffBuilder inlineDiffBuilder;
+        readonly InlineDiffBuilder inlineDiffBuilder = new InlineDiffBuilder(new Differ());
 
         static readonly CodeDiffCache cache = new CodeDiffCache ();
 
@@ -60,9 +60,9 @@ namespace FuGetGallery
         public CodeDiff (PackageData package, PackageTargetFramework framework, PackageData otherPackage, PackageTargetFramework otherFramework)
                  : base(package, framework, otherPackage, otherFramework)
         {
-            inlineDiffBuilder = new InlineDiffBuilder(new Differ());
-
             var asmDiff = OtherFramework.PublicAssemblies.Diff (Framework.PublicAssemblies, (x, y) => x.Definition.Name.Name == y.Definition.Name.Name);
+            ICSharpCode.Decompiler.CSharp.CSharpDecompiler srcCodeDecompiler = null;
+            ICSharpCode.Decompiler.CSharp.CSharpDecompiler dstCodeDecompiler = null;
 
             var types = new List<TypeDiffInfo> ();
             foreach (var aa in asmDiff.Actions) {
@@ -72,50 +72,48 @@ namespace FuGetGallery
                     case ListDiffActionType.Add:
                         srcTypes = Enumerable.Empty<Tuple<TypeDefinition, PackageTargetFramework>> ();
                         destTypes = aa.DestinationItem.PublicTypes.Select (x => Tuple.Create (x, Framework));
+                        dstCodeDecompiler = DecompilerFactory.GetDecompiler(aa.DestinationItem.Definition) ?? throw new Exception("// No decompiler available");
                         break;
                     case ListDiffActionType.Remove:
                         srcTypes = aa.SourceItem.PublicTypes.Select (x => Tuple.Create (x, OtherFramework));
                         destTypes = Enumerable.Empty<Tuple<TypeDefinition, PackageTargetFramework>> ();
+                        srcCodeDecompiler = DecompilerFactory.GetDecompiler(aa.SourceItem.Definition) ?? throw new Exception("// No decompiler available");
                         break;
                     default:
                         srcTypes = aa.SourceItem.PublicTypes.Select (x => Tuple.Create (x, OtherFramework));
                         destTypes = aa.DestinationItem.PublicTypes.Select (x => Tuple.Create (x, Framework));
+                        srcCodeDecompiler = DecompilerFactory.GetDecompiler(aa.SourceItem.Definition) ?? throw new Exception("// No decompiler available");
+                        dstCodeDecompiler = DecompilerFactory.GetDecompiler(aa.DestinationItem.Definition) ?? throw new Exception("// No decompiler available");
                         break;
                 }
-
-                if (aa.ActionType == ListDiffActionType.Remove)
-                    continue;
-
-                var oldCodeDecompiler = DecompilerFactory.GetDecompiler(aa.SourceItem.Definition) ?? throw new Exception("// No decompiler available");
-                var newCodeDecompiler = DecompilerFactory.GetDecompiler(aa.DestinationItem.Definition) ?? throw new Exception("// No decompiler available");
 
                 var typeDiff = srcTypes.Diff (destTypes, (x, y) => x.Item1.FullName == y.Item1.FullName);
                 foreach (var ta in typeDiff.Actions) {
                     var ti = new TypeDiffInfo { Action = ta.ActionType };
 
-                    var oldImplementation = string.Empty;
-                    var newImplementation = string.Empty;
+                    var srcTypeImplementation = string.Empty;
+                    var dstTypeImplementation = string.Empty;
 
                     switch (ta.ActionType) {
                         case ListDiffActionType.Add:
                             ti.Type = ta.DestinationItem.Item1;
                             ti.Framework = ta.DestinationItem.Item2;
-                            newImplementation = newCodeDecompiler.DecompileTypeAsString (new FullTypeName (ta.DestinationItem.Item1.FullName));
+                            dstTypeImplementation = dstCodeDecompiler.DecompileTypeAsString (new FullTypeName (ta.DestinationItem.Item1.FullName));
                             break;
                         case ListDiffActionType.Remove:
                             ti.Type = ta.SourceItem.Item1;
                             ti.Framework = ta.SourceItem.Item2;
-                            oldImplementation = oldCodeDecompiler.DecompileTypeAsString (new FullTypeName (ta.SourceItem.Item1.FullName));
+                            srcTypeImplementation = srcCodeDecompiler.DecompileTypeAsString (new FullTypeName (ta.SourceItem.Item1.FullName));
                             break;
                         default:
                             ti.Type = ta.DestinationItem.Item1;
                             ti.Framework = ta.DestinationItem.Item2;
-                            oldImplementation = oldCodeDecompiler.DecompileTypeAsString (new FullTypeName (ta.SourceItem.Item1.FullName));
-                            newImplementation = newCodeDecompiler.DecompileTypeAsString (new FullTypeName (ta.DestinationItem.Item1.FullName));
+                            srcTypeImplementation = srcCodeDecompiler.DecompileTypeAsString (new FullTypeName (ta.SourceItem.Item1.FullName));
+                            dstTypeImplementation = dstCodeDecompiler.DecompileTypeAsString (new FullTypeName (ta.DestinationItem.Item1.FullName));
                             break;
                     }
 
-                    var difChunks = MakeDiffChunks (inlineDiffBuilder.BuildDiffModel (oldImplementation, newImplementation, true).Lines, 3)
+                    var difChunks = MakeDiffChunks (inlineDiffBuilder.BuildDiffModel (srcTypeImplementation, dstTypeImplementation, true).Lines, 3)
                         .ToList ();
 
                     if (difChunks.Any()) {
@@ -124,6 +122,7 @@ namespace FuGetGallery
                     }              
                 }
             }
+
             foreach (var ns in types.GroupBy (x => x.Type.Namespace)) {
                 var ni = new NamespaceDiffInfo { Action = ListDiffActionType.Update };
                 ni.Namespace = ns.Key;
