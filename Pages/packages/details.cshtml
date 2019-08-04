@@ -26,9 +26,11 @@
 
     var diff = default (ApiDiff);
     var asm = default (PackageAssembly);
+    var codeDiff = default (CodeDiff);
 
     if (inputAssemblyName == "diff") {
         diff = await ApiDiff.GetAsync (package.Id, package.Version.VersionString, framework.Moniker, inputNamespace, httpClient, HttpContext.RequestAborted);
+        codeDiff = await CodeDiff.GetAsync (package.Id, package.Version.VersionString, framework.Moniker, inputNamespace, httpClient, HttpContext.RequestAborted);
     }
     else {
         asm = framework?.GetAssembly (dir, inputAssemblyName);
@@ -192,7 +194,7 @@
     </div>
     <div class="btn-group" style="display: inline-block">
         <button type="button" class="btn btn-default">
-            API Diff
+            Diff
             @if (diff != null) {
                 <span>with @diff.OtherPackage.Version</span>
             }
@@ -287,25 +289,58 @@
 
 @if (diff != null) {
 
-    <h2>API Diff between @diff.Package.Version and @diff.OtherPackage.Version</h2>
+    <h2>@(code ? "Code" : "API") Diff between @diff.Package.Version and @diff.OtherPackage.Version</h2>
     @if (diff.Error.Length > 0) {
         <p>@diff.Error</p>
     }
-    @foreach (var ni in diff.Namespaces) {
-        <h3 style="margin-bottom:0em;">@ni.Namespace</h3>
-        <ul class="inline-code" style="margin-top:0em;padding:10px 20px;">
-        @foreach (var ti in ni.Types) {
-            bool isExtensionClass = ti.Type.IsExtensionClass ();
-            <li class="diff-@ti.Action">
-                @Html.Raw(ti.Type.GetPrototypeHtml(framework:ti.Framework, linkToCode:false, isExtensionClass))
-                <ul>
-                @foreach (var mi in ti.Members) {                        
-                    <li class="diff-@mi.Action">@Html.Raw(mi.Member.GetPrototypeHtml(framework:ti.Framework, linkToCode:false, isExtensionClass))</li>
-                }
-                </ul>
+    <ul class="nav nav-tabs" role="tablist">
+        <li role="presentation" class="@(!code?"active":"")">
+            <a href="@GetUrl(oversion:package.Version.VersionString, odir:"lib", oassemblyName:"diff", onamespace:diff.OtherPackage.Version, otypeName:"", ocode:"false")" aria-controls="documentation" role="tab">API Diff</a>
+        </li>
+        @if (package.AllowedToDecompile)
+        {
+            <li role="presentation" class="@(code?"active":"")">
+                <a href="@GetUrl(oversion:package.Version.VersionString, odir:"lib", oassemblyName:"diff", onamespace:diff.OtherPackage.Version, otypeName:"", ocode:"true")" aria-controls="code" role="tab">Code Diff</a>
             </li>
         }
-        </ul>
+    </ul>
+    @if (code) {
+        @foreach (var ni in codeDiff.Namespaces) {
+            <h3 style="margin-bottom:0em;">@ni.Namespace</h3>
+            <ul class="inline-code" style="margin-top:0em;padding:10px 20px;">
+                @foreach (var ti in ni.Types) {                    
+                    bool isExtensionClass = ti.Type.IsExtensionClass ();
+                    <li>
+                        @Html.Raw(ti.Type.GetPrototypeHtml(framework: ti.Framework, linkToCode: false, isExtensionClass))
+                    </li>
+                    <ul class="inline-code" style="margin-top:0em;padding:10px 20px;">
+                        @foreach (var diffChunk in ti.DiffChunks) {
+                            <li style="margin-bottom:0em;">Lines @(diffChunk.Where(x => x.Position.HasValue).FirstOrDefault()?.Position ?? 0)..@(diffChunk.Where(x => x.Position.HasValue).LastOrDefault()?.Position ?? 0) </li>
+                            <pre><code>@foreach (var line in diffChunk) {@Html.Raw(line.GetBetterText() +"\n")}</code></pre>
+                        }
+                    </ul>
+                }
+            </ul>
+        }
+    }
+    else {
+        @foreach (var ni in diff.Namespaces) {
+            <h3 style="margin-bottom:0em;">@ni.Namespace</h3>
+            <ul class="inline-code" style="margin-top:0em;padding:10px 20px;">
+                @foreach (var ti in ni.Types) {
+                    bool isExtensionClass = ti.Type.IsExtensionClass ();
+                    <li class="diff-@ti.Action">
+                    @Html.Raw(ti.Type.GetPrototypeHtml(framework: ti.Framework, linkToCode: false, isExtensionClass))
+                    <ul>
+                        @foreach (var mi in ti.Members)
+                        {
+                            <li class="diff-@mi.Action">@Html.Raw(mi.Member.GetPrototypeHtml(framework: ti.Framework, linkToCode: false, isExtensionClass))</li>
+                        }
+                    </ul>
+                </li>
+                }
+            </ul>
+        }
     }
 }
 else {
