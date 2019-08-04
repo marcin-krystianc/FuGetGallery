@@ -39,17 +39,8 @@ namespace FuGetGallery
         }
 
         public ApiDiff (PackageData package, PackageTargetFramework framework, PackageData otherPackage, PackageTargetFramework otherFramework)
+            : base(package, framework, otherPackage, otherFramework)
         {
-            this.Package = package;
-            this.Framework = framework;
-            this.OtherPackage = otherPackage;
-            this.OtherFramework = otherFramework;
-
-            if (otherFramework == null) {
-                Error = $"Could not find framework matching \"{framework?.Moniker}\" in {otherPackage?.Id} {otherPackage?.Version}.";
-                return;
-            }
-
             var asmDiff = OtherFramework.PublicAssemblies.Diff (Framework.PublicAssemblies, (x, y) => x.Definition.Name.Name == y.Definition.Name.Name);
 
             var types = new List<TypeDiffInfo> ();

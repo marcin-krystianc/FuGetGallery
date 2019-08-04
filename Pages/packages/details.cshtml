@@ -25,13 +25,19 @@
     var dir = isBuildAsm ? "build" : "lib";
 
     var diff = default (DiffBase);
+    var diffError = string.Empty;
     var asm = default (PackageAssembly);
     var inputCode = Request.Query["code"].FirstOrDefault() ?? "";
     var code = "true".Equals(inputCode) && package.AllowedToDecompile;
 
     if (inputAssemblyName == "diff") {
-        diff = code ? (DiffBase)await CodeDiff.GetAsync(package.Id, package.Version.VersionString, framework.Moniker, inputNamespace, httpClient, HttpContext.RequestAborted)
-            : (DiffBase)await ApiDiff.GetAsync(package.Id, package.Version.VersionString, framework.Moniker, inputNamespace, httpClient, HttpContext.RequestAborted);
+        try {
+            diff = code ? (DiffBase)await CodeDiff.GetAsync(package.Id, package.Version.VersionString, framework.Moniker, inputNamespace, httpClient, HttpContext.RequestAborted)
+                     : (DiffBase)await ApiDiff.GetAsync(package.Id, package.Version.VersionString, framework.Moniker, inputNamespace, httpClient, HttpContext.RequestAborted);
+        }
+        catch (Exception e) {
+            diffError = e.Message;
+        }
     }
     else {
         asm = framework?.GetAssembly (dir, inputAssemblyName);
@@ -289,8 +295,8 @@
 @if (diff != null) {
 
     <h2>@(code ? "Code" : "API") Diff between @diff.Package.Version and @diff.OtherPackage.Version</h2>
-    @if (diff.Error.Length > 0) {
-        <p>@diff.Error</p>
+    @if (diffError.Length > 0) {
+        <p>@diffError</p>
     }
     <ul class="nav nav-tabs" role="tablist">
         <li role="presentation" class="@(!code?"active":"")">

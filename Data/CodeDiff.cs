@@ -58,41 +58,9 @@ namespace FuGetGallery
         }
 
         public CodeDiff (PackageData package, PackageTargetFramework framework, PackageData otherPackage, PackageTargetFramework otherFramework)
+                 : base(package, framework, otherPackage, otherFramework)
         {
-            var format = ICSharpCode.Decompiler.CSharp.OutputVisitor.FormattingOptionsFactory.CreateMono ();
-            format.SpaceBeforeMethodCallParentheses = false;
-            format.SpaceBeforeMethodDeclarationParentheses = false;
-            format.SpaceBeforeConstructorDeclarationParentheses = false;
-            format.PropertyBraceStyle = ICSharpCode.Decompiler.CSharp.OutputVisitor.BraceStyle.EndOfLine;
-            format.PropertyGetBraceStyle = ICSharpCode.Decompiler.CSharp.OutputVisitor.BraceStyle.EndOfLine;
-            format.PropertySetBraceStyle = ICSharpCode.Decompiler.CSharp.OutputVisitor.BraceStyle.EndOfLine;
-            format.AutoPropertyFormatting = ICSharpCode.Decompiler.CSharp.OutputVisitor.PropertyFormatting.ForceOneLine;
-            format.SimplePropertyFormatting = ICSharpCode.Decompiler.CSharp.OutputVisitor.PropertyFormatting.ForceOneLine;
-            format.IndentPropertyBody = false;
-            format.IndexerDeclarationClosingBracketOnNewLine = ICSharpCode.Decompiler.CSharp.OutputVisitor.NewLinePlacement.SameLine;
-            format.IndexerClosingBracketOnNewLine = ICSharpCode.Decompiler.CSharp.OutputVisitor.NewLinePlacement.SameLine;
-            format.NewLineAferIndexerDeclarationOpenBracket = ICSharpCode.Decompiler.CSharp.OutputVisitor.NewLinePlacement.SameLine;
-            format.NewLineAferIndexerOpenBracket = ICSharpCode.Decompiler.CSharp.OutputVisitor.NewLinePlacement.SameLine;
-            decompilerSettings = new ICSharpCode.Decompiler.DecompilerSettings {
-                ShowXmlDocumentation = false,
-                ThrowOnAssemblyResolveErrors = false,
-                AlwaysUseBraces = false,
-                CSharpFormattingOptions = format,
-                ExpandMemberDefinitions = true,
-                DecompileMemberBodies = true,
-                UseExpressionBodyForCalculatedGetterOnlyProperties = true,
-            };
-
-            this.Package = package;
-            this.Framework = framework;
-            this.OtherPackage = otherPackage;
-            this.OtherFramework = otherFramework;
-            inlineDiffBuilder = new InlineDiffBuilder (new Differ ());
-  
-            if (otherFramework == null) {
-                Error = $"Could not find framework matching \"{framework?.Moniker}\" in {otherPackage?.Id} {otherPackage?.Version}.";
-                return;
-            }
+            inlineDiffBuilder = new InlineDiffBuilder(new Differ());
 
             var asmDiff = OtherFramework.PublicAssemblies.Diff (Framework.PublicAssemblies, (x, y) => x.Definition.Name.Name == y.Definition.Name.Name);
 
@@ -114,11 +82,12 @@ namespace FuGetGallery
                         destTypes = aa.DestinationItem.PublicTypes.Select (x => Tuple.Create (x, Framework));
                         break;
                 }
+
                 if (aa.ActionType == ListDiffActionType.Remove)
                     continue;
 
-                var oldCodeDecompiler = new ICSharpCode.Decompiler.CSharp.CSharpDecompiler (aa.SourceItem.Definition.MainModule, decompilerSettings);
-                var newCodeDecompiler = new ICSharpCode.Decompiler.CSharp.CSharpDecompiler (aa.DestinationItem.Definition.MainModule, decompilerSettings);
+                var oldCodeDecompiler = DecompilerFactory.GetDecompiler(aa.SourceItem.Definition) ?? throw new Exception("// No decompiler available");
+                var newCodeDecompiler = DecompilerFactory.GetDecompiler(aa.DestinationItem.Definition) ?? throw new Exception("// No decompiler available");
 
                 var typeDiff = srcTypes.Diff (destTypes, (x, y) => x.Item1.FullName == y.Item1.FullName);
                 foreach (var ta in typeDiff.Actions) {

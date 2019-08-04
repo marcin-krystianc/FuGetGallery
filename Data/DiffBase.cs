@@ -1,21 +1,21 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-
-using ListDiff;
-using Mono.Cecil;
-using System.Linq;
-using System.Net.Http;
 
 namespace FuGetGallery
 {
     public abstract class DiffBase
     {
-        public PackageData Package { get; protected set; }
-        public PackageTargetFramework Framework { get; protected set; }
-        public PackageData OtherPackage { get; protected set; }
-        public PackageTargetFramework OtherFramework { get; protected set; }
-        public string Error { get; protected set; } = "";
+        public PackageData Package { get; }
+        public PackageTargetFramework Framework { get; }
+        public PackageData OtherPackage { get; }
+        public PackageTargetFramework OtherFramework { get; }
+
+        public DiffBase(PackageData package, PackageTargetFramework framework, PackageData otherPackage, PackageTargetFramework otherFramework)
+        {
+            this.Package = package;
+            this.Framework = framework;
+            this.OtherPackage = otherPackage;
+            this.OtherFramework = otherFramework
+                ?? throw new Exception($"Could not find framework matching \"{framework?.Moniker}\" in {otherPackage?.Id} {otherPackage?.Version}.");
+        }
     }
 }
