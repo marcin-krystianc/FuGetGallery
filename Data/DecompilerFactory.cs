@@ -4,29 +4,34 @@ namespace FuGetGallery
 {
     public static class DecompilerFactory
     {
+        public static ICSharpCode.Decompiler.CSharp.OutputVisitor.CSharpFormattingOptions Format {get;}
+
+        static DecompilerFactory()
+        {
+            ICSharpCode.Decompiler.CSharp.OutputVisitor.FormattingOptionsFactory.CreateMono();
+            Format.SpaceBeforeMethodCallParentheses = false;
+            Format.SpaceBeforeMethodDeclarationParentheses = false;
+            Format.SpaceBeforeConstructorDeclarationParentheses = false;
+            Format.PropertyBraceStyle = ICSharpCode.Decompiler.CSharp.OutputVisitor.BraceStyle.EndOfLine;
+            Format.PropertyGetBraceStyle = ICSharpCode.Decompiler.CSharp.OutputVisitor.BraceStyle.EndOfLine;
+            Format.PropertySetBraceStyle = ICSharpCode.Decompiler.CSharp.OutputVisitor.BraceStyle.EndOfLine;
+            Format.AutoPropertyFormatting = ICSharpCode.Decompiler.CSharp.OutputVisitor.PropertyFormatting.ForceOneLine;
+            Format.SimplePropertyFormatting = ICSharpCode.Decompiler.CSharp.OutputVisitor.PropertyFormatting.ForceOneLine;
+            Format.IndentPropertyBody = false;
+            Format.IndexerDeclarationClosingBracketOnNewLine = ICSharpCode.Decompiler.CSharp.OutputVisitor.NewLinePlacement.SameLine;
+            Format.IndexerClosingBracketOnNewLine = ICSharpCode.Decompiler.CSharp.OutputVisitor.NewLinePlacement.SameLine;
+            Format.NewLineAferIndexerDeclarationOpenBracket = ICSharpCode.Decompiler.CSharp.OutputVisitor.NewLinePlacement.SameLine;
+            Format.NewLineAferIndexerOpenBracket = ICSharpCode.Decompiler.CSharp.OutputVisitor.NewLinePlacement.SameLine;
+        }
+
         public static ICSharpCode.Decompiler.CSharp.CSharpDecompiler GetDecompiler(AssemblyDefinition assemblyDefinition)
         {
-            var format = ICSharpCode.Decompiler.CSharp.OutputVisitor.FormattingOptionsFactory.CreateMono();
-            format.SpaceBeforeMethodCallParentheses = false;
-            format.SpaceBeforeMethodDeclarationParentheses = false;
-            format.SpaceBeforeConstructorDeclarationParentheses = false;
-            format.PropertyBraceStyle = ICSharpCode.Decompiler.CSharp.OutputVisitor.BraceStyle.EndOfLine;
-            format.PropertyGetBraceStyle = ICSharpCode.Decompiler.CSharp.OutputVisitor.BraceStyle.EndOfLine;
-            format.PropertySetBraceStyle = ICSharpCode.Decompiler.CSharp.OutputVisitor.BraceStyle.EndOfLine;
-            format.AutoPropertyFormatting = ICSharpCode.Decompiler.CSharp.OutputVisitor.PropertyFormatting.ForceOneLine;
-            format.SimplePropertyFormatting = ICSharpCode.Decompiler.CSharp.OutputVisitor.PropertyFormatting.ForceOneLine;
-            format.IndentPropertyBody = false;
-            format.IndexerDeclarationClosingBracketOnNewLine = ICSharpCode.Decompiler.CSharp.OutputVisitor.NewLinePlacement.SameLine;
-            format.IndexerClosingBracketOnNewLine = ICSharpCode.Decompiler.CSharp.OutputVisitor.NewLinePlacement.SameLine;
-            format.NewLineAferIndexerDeclarationOpenBracket = ICSharpCode.Decompiler.CSharp.OutputVisitor.NewLinePlacement.SameLine;
-            format.NewLineAferIndexerOpenBracket = ICSharpCode.Decompiler.CSharp.OutputVisitor.NewLinePlacement.SameLine;
-
             var decompilerSettings = new ICSharpCode.Decompiler.DecompilerSettings
             {
                 ShowXmlDocumentation = false,
                 ThrowOnAssemblyResolveErrors = false,
                 AlwaysUseBraces = false,
-                CSharpFormattingOptions = format,
+                CSharpFormattingOptions = Format,
                 ExpandMemberDefinitions = true,
                 DecompileMemberBodies = true,
                 UseExpressionBodyForCalculatedGetterOnlyProperties = true,

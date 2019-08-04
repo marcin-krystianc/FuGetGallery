@@ -15,12 +15,8 @@ namespace FuGetGallery
         readonly PackageTargetFramework framework;
         readonly Lazy<AssemblyDefinition> definition;
         readonly Lazy<ICSharpCode.Decompiler.CSharp.CSharpDecompiler> decompiler;
-        readonly Lazy<ICSharpCode.Decompiler.CSharp.CSharpDecompiler> idecompiler;
         readonly ConcurrentDictionary<TypeDefinition, TypeDocumentation> typeDocs =
             new ConcurrentDictionary<TypeDefinition, TypeDocumentation> ();
-
-        readonly ICSharpCode.Decompiler.CSharp.OutputVisitor.CSharpFormattingOptions format;
-
         public PackageAssemblyXmlDocs XmlDocs {
             get {
                 framework.AssemblyXmlDocs.TryGetValue (Definition.Name.Name, out var docs);
@@ -59,48 +55,9 @@ namespace FuGetGallery
                     return null;
                 }
             }, true);
-            format = ICSharpCode.Decompiler.CSharp.OutputVisitor.FormattingOptionsFactory.CreateMono();
-            format.SpaceBeforeMethodCallParentheses = false;
-            format.SpaceBeforeMethodDeclarationParentheses = false;
-            format.SpaceBeforeConstructorDeclarationParentheses = false;
-            format.PropertyBraceStyle = ICSharpCode.Decompiler.CSharp.OutputVisitor.BraceStyle.EndOfLine;
-            format.PropertyGetBraceStyle = ICSharpCode.Decompiler.CSharp.OutputVisitor.BraceStyle.EndOfLine;
-            format.PropertySetBraceStyle = ICSharpCode.Decompiler.CSharp.OutputVisitor.BraceStyle.EndOfLine;
-            format.AutoPropertyFormatting = ICSharpCode.Decompiler.CSharp.OutputVisitor.PropertyFormatting.ForceOneLine;
-            format.SimplePropertyFormatting = ICSharpCode.Decompiler.CSharp.OutputVisitor.PropertyFormatting.ForceOneLine;
-            format.IndentPropertyBody = false;
-            format.IndexerDeclarationClosingBracketOnNewLine = ICSharpCode.Decompiler.CSharp.OutputVisitor.NewLinePlacement.SameLine;
-            format.IndexerClosingBracketOnNewLine = ICSharpCode.Decompiler.CSharp.OutputVisitor.NewLinePlacement.SameLine;
-            format.NewLineAferIndexerDeclarationOpenBracket = ICSharpCode.Decompiler.CSharp.OutputVisitor.NewLinePlacement.SameLine;
-            format.NewLineAferIndexerOpenBracket = ICSharpCode.Decompiler.CSharp.OutputVisitor.NewLinePlacement.SameLine;
 
-            idecompiler = new Lazy<ICSharpCode.Decompiler.CSharp.CSharpDecompiler> (() => {
-                var m = Definition?.MainModule;
-                if (m == null)
-                    return null;
-                return new ICSharpCode.Decompiler.CSharp.CSharpDecompiler (m, new ICSharpCode.Decompiler.DecompilerSettings {
-                    ShowXmlDocumentation = false,
-                    ThrowOnAssemblyResolveErrors = false,
-                    AlwaysUseBraces = false,
-                    CSharpFormattingOptions = format,
-                    ExpandMemberDefinitions = false,
-                    DecompileMemberBodies = false,
-                    UseExpressionBodyForCalculatedGetterOnlyProperties = true,
-                });
-            }, true);
             decompiler = new Lazy<ICSharpCode.Decompiler.CSharp.CSharpDecompiler> (() => {
-                var m = Definition?.MainModule;
-                if (m == null)
-                    return null;
-                return new ICSharpCode.Decompiler.CSharp.CSharpDecompiler (m, new ICSharpCode.Decompiler.DecompilerSettings {
-                    ShowXmlDocumentation = false,
-                    ThrowOnAssemblyResolveErrors = false,
-                    AlwaysUseBraces = false,
-                    CSharpFormattingOptions = format,
-                    ExpandMemberDefinitions = true,
-                    DecompileMemberBodies = true,
-                    UseExpressionBodyForCalculatedGetterOnlyProperties = true,
-                });
+                return DecompilerFactory.GetDecompiler(Definition);
             }, true);
         }
 
@@ -110,7 +67,7 @@ namespace FuGetGallery
                 return docs;
             }
             var asmName = typeDefinition.Module.Assembly.Name.Name;
-            docs = new TypeDocumentation (typeDefinition, framework, XmlDocs, decompiler, idecompiler, format);
+            docs = new TypeDocumentation (typeDefinition, framework, XmlDocs, decompiler);
             typeDocs.TryAdd (typeDefinition, docs);
             return docs;
         }

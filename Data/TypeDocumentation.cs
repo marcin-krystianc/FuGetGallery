@@ -28,8 +28,6 @@ namespace FuGetGallery
         public TypeDefinition Definition => typeDefinition;
 
         readonly Lazy<ICSharpCode.Decompiler.CSharp.CSharpDecompiler> decompiler;
-        readonly Lazy<ICSharpCode.Decompiler.CSharp.CSharpDecompiler> idecompiler;
-        readonly ICSharpCode.Decompiler.CSharp.OutputVisitor.CSharpFormattingOptions format;
 
         public string SummaryText { get; }
         public string SummaryHtml { get; }
@@ -38,15 +36,12 @@ namespace FuGetGallery
         readonly PackageAssemblyXmlDocs xmlDocs;
 
         public TypeDocumentation (TypeDefinition typeDefinition, PackageTargetFramework framework, PackageAssemblyXmlDocs xmlDocs,
-            Lazy<ICSharpCode.Decompiler.CSharp.CSharpDecompiler> decompiler, Lazy<ICSharpCode.Decompiler.CSharp.CSharpDecompiler> idecompiler,
-            ICSharpCode.Decompiler.CSharp.OutputVisitor.CSharpFormattingOptions format)
+            Lazy<ICSharpCode.Decompiler.CSharp.CSharpDecompiler> decompiler)
         {
             this.xmlDocs = xmlDocs;
             this.typeDefinition = typeDefinition;
             this.framework = framework;
             this.decompiler = decompiler;
-            this.idecompiler = idecompiler;
-            this.format = format;
 
             SummaryHtml = "";
             SummaryText = "";
@@ -245,7 +240,7 @@ namespace FuGetGallery
                     var syntaxTree = d.DecompileType (new ICSharpCode.Decompiler.TypeSystem.FullTypeName (typeDefinition.FullName));
                     var w = new HtmlWriter (new StringWriter(), framework);
                     w.Writer.Write("<div class=\"code\">");
-                    syntaxTree.AcceptVisitor(new ICSharpCode.Decompiler.CSharp.OutputVisitor.CSharpOutputVisitor(w, format));
+                    syntaxTree.AcceptVisitor(new ICSharpCode.Decompiler.CSharp.OutputVisitor.CSharpOutputVisitor(w, DecompilerFactory.Format));
                     w.Writer.Write("</div>");
                     return PostProcessCode (w.Writer.ToString());
                 }
@@ -254,28 +249,6 @@ namespace FuGetGallery
                 }
             });
         }
-
-        public Task<string> GetTypeInterfaceCodeAsync ()
-        {
-            return Task.Run (() => {
-                try {
-                    var d = idecompiler.Value;
-                    if (d == null)
-                        return "// No decompiler available";
-                    var syntaxTree = d.DecompileType (new ICSharpCode.Decompiler.TypeSystem.FullTypeName (typeDefinition.FullName));
-                    syntaxTree.AcceptVisitor(new RemoveNonInterfaceSyntaxVisitor { StartTypeName = typeDefinition.Name });
-                    var w = new HtmlWriter (new StringWriter(), framework);
-                    w.Writer.Write("<div class=\"code\">");
-                    syntaxTree.AcceptVisitor(new ICSharpCode.Decompiler.CSharp.OutputVisitor.CSharpOutputVisitor(w, format));
-                    w.Writer.Write("</div>");
-                    return PostProcessCode (w.Writer.ToString());
-                }
-                catch (Exception e) {
-                    return "/* " + e + " */";
-                }
-            });
-        }
-
         public static void WriteEncodedHtml (string s, TextWriter w)
         {
             if (s == null) return;
