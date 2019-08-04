@@ -16,7 +16,7 @@ namespace FuGetGallery
 {
     public static class DiffPieceExt
     {
-        public static string GetBetterText (this DiffPiece diffPiece)
+        public static string GetDiffText (this DiffPiece diffPiece)
         {
             switch (diffPiece.Type) {
                 case ChangeType.Inserted:
@@ -31,7 +31,6 @@ namespace FuGetGallery
 
     public class CodeDiff : DiffBase
     {
-        readonly Lazy<ICSharpCode.Decompiler.CSharp.CSharpDecompiler> decompiler;
         readonly InlineDiffBuilder inlineDiffBuilder;
 
         static readonly CodeDiffCache cache = new CodeDiffCache ();
@@ -88,7 +87,6 @@ namespace FuGetGallery
             this.Framework = framework;
             this.OtherPackage = otherPackage;
             this.OtherFramework = otherFramework;
-            this.decompiler = decompiler;
             inlineDiffBuilder = new InlineDiffBuilder (new Differ ());
   
             if (otherFramework == null) {
@@ -208,12 +206,6 @@ namespace FuGetGallery
                 }
                 yield return queue;
             }
-        }
-
-        private string DecompileType (TypeDefinition typeDefinition)
-        {
-            var d = decompiler.Value;
-            return d.DecompileTypeAsString (new ICSharpCode.Decompiler.TypeSystem.FullTypeName (typeDefinition.FullName));
         }
 
         public static async Task<CodeDiff> GetAsync (
