@@ -24,13 +24,14 @@
     var autodir = string.IsNullOrEmpty (RouteData.Values["dir"]?.ToString());
     var dir = isBuildAsm ? "build" : "lib";
 
-    var diff = default (ApiDiff);
+    var diff = default (DiffBase);
     var asm = default (PackageAssembly);
-    var codeDiff = default (CodeDiff);
+    var inputCode = Request.Query["code"].FirstOrDefault() ?? "";
+    var code = "true".Equals(inputCode) && package.AllowedToDecompile;
 
     if (inputAssemblyName == "diff") {
-        diff = await ApiDiff.GetAsync (package.Id, package.Version.VersionString, framework.Moniker, inputNamespace, httpClient, HttpContext.RequestAborted);
-        codeDiff = await CodeDiff.GetAsync (package.Id, package.Version.VersionString, framework.Moniker, inputNamespace, httpClient, HttpContext.RequestAborted);
+        diff = code ? (DiffBase)await CodeDiff.GetAsync(package.Id, package.Version.VersionString, framework.Moniker, inputNamespace, httpClient, HttpContext.RequestAborted)
+            : (DiffBase)await ApiDiff.GetAsync(package.Id, package.Version.VersionString, framework.Moniker, inputNamespace, httpClient, HttpContext.RequestAborted);
     }
     else {
         asm = framework?.GetAssembly (dir, inputAssemblyName);
@@ -57,8 +58,6 @@
     var typ = ns?.FirstOrDefault(x => x.Name == inputTypeName);
     var docs = typ != null ? asm?.GetTypeDocumentation(typ) : null;
 
-    var inputCode = Request.Query["code"].FirstOrDefault() ?? "";
-    var code = "true".Equals(inputCode) && package.AllowedToDecompile;
 
     var hasApi = framework != null;
     var hasContent = package != null && package.Content.Count > 0;
@@ -305,7 +304,7 @@
         }
     </ul>
     @if (code) {
-        @foreach (var ni in codeDiff.Namespaces) {
+        @foreach (var ni in (diff as CodeDiff).Namespaces) {
             <h3 style="margin-bottom:0em;">@ni.Namespace</h3>
             <ul class="inline-code" style="margin-top:0em;padding:10px 20px;">
                 @foreach (var ti in ni.Types) {                    
@@ -324,7 +323,7 @@
         }
     }
     else {
-        @foreach (var ni in diff.Namespaces) {
+        @foreach (var ni in (diff as ApiDiff).Namespaces) {
             <h3 style="margin-bottom:0em;">@ni.Namespace</h3>
             <ul class="inline-code" style="margin-top:0em;padding:10px 20px;">
                 @foreach (var ti in ni.Types) {

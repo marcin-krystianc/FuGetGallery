@@ -29,7 +29,7 @@ namespace FuGetGallery
         }
     }
 
-    public class CodeDiff
+    public class CodeDiff : DiffBase
     {
         readonly Lazy<ICSharpCode.Decompiler.CSharp.CSharpDecompiler> decompiler;
         readonly InlineDiffBuilder inlineDiffBuilder;
@@ -37,12 +37,6 @@ namespace FuGetGallery
         static readonly CodeDiffCache cache = new CodeDiffCache ();
 
         readonly ICSharpCode.Decompiler.DecompilerSettings decompilerSettings;
-
-        public PackageData Package { get; }
-        public PackageTargetFramework Framework { get; }
-        public PackageData OtherPackage { get; }
-        public PackageTargetFramework OtherFramework { get; }
-        public string Error { get; } = "";
 
         public List<NamespaceDiffInfo> Namespaces { get; } = new List<NamespaceDiffInfo> ();
 

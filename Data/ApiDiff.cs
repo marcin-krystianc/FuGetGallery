@@ -10,16 +10,9 @@ using System.Net.Http;
 
 namespace FuGetGallery
 {
-    public class ApiDiff
+    public class ApiDiff : DiffBase
     {
         static readonly ApiDiffCache cache = new ApiDiffCache ();
-
-        public PackageData Package { get; }
-        public PackageTargetFramework Framework { get; }
-        public PackageData OtherPackage { get; }
-        public PackageTargetFramework OtherFramework { get; }
-        public string Error { get; } = "";
-
         public List<NamespaceDiffInfo> Namespaces { get; } = new List<NamespaceDiffInfo> ();
 
         public class DiffInfo
